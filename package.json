@@ -1,0 +1,25 @@
+{
+  "name": "snake",
+  "version": "1.0.0",
+  "description": "\"\"",
+  "main": "script.js",
+  "scripts": {
+    "test": "eslint **/*.js",
+    "start": "http-server ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mad-gamers/snake.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mad-gamers/snake/issues"
+  },
+  "homepage": "https://github.com/mad-gamers/snake#readme",
+  "devDependencies": {
+    "eslint": "^5.8.0",
+    "eslint-config-htmlacademy": "^0.5.2",
+    "http-server": "^0.11.1"
+  }
+}
