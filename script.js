@@ -13,14 +13,26 @@ const gameCanvas = {
   height: 300
 };
 
-const initialItem = {
+const snake = {
   color: `black`,
-  parts: 1,
-  x: 10,
-  y: 10,
-  width: 10,
-  height: 10,
-  direction: `down`
+  direction: `right`,
+  parts: [
+    {
+      x: 30,
+      y: 10,
+      size: 10
+    },
+    {
+      x: 20,
+      y: 10,
+      size: 10
+    },
+    {
+      x: 10,
+      y: 10,
+      size: 10
+    }
+  ]
 };
 
 const apple = {
@@ -31,9 +43,12 @@ const apple = {
   y: getRandomRange(0, 29) * 10
 };
 
-const render = (item) => {
-  ctx.fillStyle = item.color;
-  ctx.fillRect(item.x, item.y, item.width, item.height);
+const renderSnake = () => {
+  ctx.fillStyle = snake.color;
+
+  for (const part of snake.parts) {
+    ctx.fillRect(part.x, part.y, part.size, part.size);
+  }
 };
 
 const clear = (item) => {
@@ -41,26 +56,93 @@ const clear = (item) => {
 };
 
 const isAppleEaten = () => {
-  return (initialItem.x === apple.x && initialItem.y === apple.y);
+  const firstPart = snake.parts[0];
+  const firstPartX = firstPart.x;
+  const firstPartY = firstPart.y;
+  return (firstPartX === apple.x && firstPartY === apple.y);
+};
+
+const addNewSnakePart = () => {
+  const lastPart = snake.parts[snake.parts.length - 1];
+  const newPart = Object.assign({}, lastPart);
+
+  if (snake.direction === `right`) {
+    newPart.x = lastPart.x - 10;
+  } else if (snake.direction === `left`) {
+    newPart.x = lastPart.x + 10;
+  } else if (snake.direction === `up`) {
+    newPart.y = lastPart.y + 10;
+  } else if (snake.direction === `down`) {
+    newPart.y = lastPart.y - 10;
+  }
+
+  snake.parts.push(newPart);
 };
 
 const nextStep = () => {
   clear(gameCanvas);
-  render(gameCanvas);
-  render(apple);
-  render(initialItem);
 
-  if (initialItem.direction === `right`) {
-    initialItem.x = initialItem.x + 10;
-  } else if (initialItem.direction === `left`) {
-    initialItem.x = initialItem.x - 10;
-  } else if (initialItem.direction === `up`) {
-    initialItem.y = initialItem.y - 10;
-  } else if (initialItem.direction === `down`) {
-    initialItem.y = initialItem.y + 10;
+  // render canvas
+  ctx.fillStyle = gameCanvas.color;
+  ctx.fillRect(gameCanvas.x, gameCanvas.y, gameCanvas.width, gameCanvas.height);
+
+  renderSnake(snake);
+
+  // render apple
+  ctx.fillStyle = apple.color;
+  ctx.fillRect(apple.x, apple.y, apple.width, apple.height);
+
+  // snake movenment
+  if (snake.direction === `right`) {
+
+    const firstPart = snake.parts[0];
+    const lastPart = snake.parts[snake.parts.length - 1];
+    const firstPartX = firstPart.x;
+    const firstPartY = firstPart.y;
+
+    if (lastPart.y !== firstPartY) {
+      lastPart.y = firstPartY;
+    }
+    lastPart.x = firstPartX + 10;
+    snake.parts.unshift(snake.parts.pop());
+
+  } else if (snake.direction === `down`) {
+
+    const firstPart = snake.parts[0];
+    const lastPart = snake.parts[snake.parts.length - 1];
+    const firstPartX = firstPart.x;
+    const firstPartY = firstPart.y;
+    lastPart.x = firstPartX;
+    lastPart.y = firstPartY + 10;
+    snake.parts.unshift(snake.parts.pop());
+
+  } else if (snake.direction === `left`) {
+    const firstPart = snake.parts[0];
+    const lastPart = snake.parts[snake.parts.length - 1];
+    const firstPartX = firstPart.x;
+    const firstPartY = firstPart.y;
+
+    if (lastPart.y !== firstPartY) {
+      lastPart.y = firstPartY;
+    }
+
+    lastPart.x = firstPartX - 10;
+    snake.parts.unshift(snake.parts.pop());
+
+  } else if (snake.direction === `up`) {
+    const firstPart = snake.parts[0];
+    const lastPart = snake.parts[snake.parts.length - 1];
+    const firstPartX = firstPart.x;
+    const firstPartY = firstPart.y;
+    lastPart.x = firstPartX;
+    lastPart.y = firstPartY - 10;
+    snake.parts.unshift(snake.parts.pop());
   }
 
+
+  // apple generate
   if (isAppleEaten()) {
+    addNewSnakePart();
     generateApple();
   }
   setTimeout(() => {
@@ -70,13 +152,13 @@ const nextStep = () => {
 
 const checkKey = (key) => {
   if (key === `ArrowRight`) {
-    initialItem.direction = `right`;
+    snake.direction = `right`;
   } else if (key === `ArrowDown`) {
-    initialItem.direction = `down`;
+    snake.direction = `down`;
   } else if (key === `ArrowUp`) {
-    initialItem.direction = `up`;
+    snake.direction = `up`;
   } else if (key === `ArrowLeft`) {
-    initialItem.direction = `left`;
+    snake.direction = `left`;
   }
 };
 
