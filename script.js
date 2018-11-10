@@ -1,3 +1,5 @@
+// TODO на маленькой скорости видно, что сначала я тыкаю вниз, змейка идёт ещё раз в сторону, а только потом вниз
+
 const canvas = document.querySelector(`canvas`);
 const ctx = canvas.getContext(`2d`);
 
@@ -20,17 +22,20 @@ const snake = {
     {
       x: 30,
       y: 10,
-      size: 10
+      size: 10,
+      color: `red`
     },
     {
       x: 20,
       y: 10,
-      size: 10
+      size: 10,
+      color: `black`
     },
     {
       x: 10,
       y: 10,
-      size: 10
+      size: 10,
+      color: `black`
     }
   ]
 };
@@ -44,9 +49,10 @@ const apple = {
 };
 
 const renderSnake = () => {
-  ctx.fillStyle = snake.color;
+  // ctx.fillStyle = snake.color;
 
   for (const part of snake.parts) {
+    ctx.fillStyle = part.color;
     ctx.fillRect(part.x, part.y, part.size, part.size);
   }
 };
@@ -79,6 +85,82 @@ const addNewSnakePart = () => {
   snake.parts.push(newPart);
 };
 
+const moveRight = (firstPart, lastPart, firstPartX, firstPartY) => {
+
+  if (lastPart.y !== firstPartY) {
+    lastPart.y = firstPartY;
+  }
+
+  if (firstPartX + 10 !== snake.parts[1].x) {
+    lastPart.x = firstPartX + 10;
+    lastPart.color = `red`;
+    firstPart.color = `black`;
+    snake.parts.unshift(snake.parts.pop());
+  } else {
+    moveLeft(firstPart, lastPart, firstPartX, firstPartY);
+  }
+};
+
+const moveDown = (firstPart, lastPart, firstPartX, firstPartY) => {
+  if (firstPartY + 10 !== snake.parts[1].y) {
+    lastPart.x = firstPartX;
+    lastPart.y = firstPartY + 10;
+    lastPart.color = `red`;
+    firstPart.color = `black`;
+    snake.parts.unshift(snake.parts.pop());
+  } else {
+    moveUp(firstPart, lastPart, firstPartX, firstPartY);
+  }
+};
+
+const moveLeft = (firstPart, lastPart, firstPartX, firstPartY) => {
+  if (lastPart.y !== firstPartY) {
+    lastPart.y = firstPartY;
+  }
+
+  if (firstPartX - 10 !== snake.parts[1].x) {
+    lastPart.x = firstPartX - 10;
+    lastPart.color = `red`;
+    firstPart.color = `black`;
+    snake.parts.unshift(snake.parts.pop());
+  } else {
+    moveRight(firstPart, lastPart, firstPartX, firstPartY);
+  }
+};
+
+const moveUp = (firstPart, lastPart, firstPartX, firstPartY) => {
+  if (firstPartY - 10 !== snake.parts[1].y) {
+    lastPart.x = firstPartX;
+    lastPart.y = firstPartY - 10;
+    lastPart.color = `red`;
+    firstPart.color = `black`;
+    snake.parts.unshift(snake.parts.pop());
+  } else {
+    moveDown(firstPart, lastPart, firstPartX, firstPartY);
+  }
+};
+
+const checkSnakeMove = (direction) => {
+  const firstPart = snake.parts[0];
+  const lastPart = snake.parts[snake.parts.length - 1];
+  const firstPartX = firstPart.x;
+  const firstPartY = firstPart.y;
+
+  if (direction === `right`) {
+    moveRight(firstPart, lastPart, firstPartX, firstPartY);
+
+  } else if (snake.direction === `down`) {
+    moveDown(firstPart, lastPart, firstPartX, firstPartY);
+
+  } else if (snake.direction === `left`) {
+    moveLeft(firstPart, lastPart, firstPartX, firstPartY);
+
+
+  } else if (snake.direction === `up`) {
+    moveUp(firstPart, lastPart, firstPartX, firstPartY);
+  }
+};
+
 const nextStep = () => {
   clear(gameCanvas);
 
@@ -93,51 +175,7 @@ const nextStep = () => {
   ctx.fillRect(apple.x, apple.y, apple.width, apple.height);
 
   // snake movenment
-  if (snake.direction === `right`) {
-
-    const firstPart = snake.parts[0];
-    const lastPart = snake.parts[snake.parts.length - 1];
-    const firstPartX = firstPart.x;
-    const firstPartY = firstPart.y;
-
-    if (lastPart.y !== firstPartY) {
-      lastPart.y = firstPartY;
-    }
-    lastPart.x = firstPartX + 10;
-    snake.parts.unshift(snake.parts.pop());
-
-  } else if (snake.direction === `down`) {
-
-    const firstPart = snake.parts[0];
-    const lastPart = snake.parts[snake.parts.length - 1];
-    const firstPartX = firstPart.x;
-    const firstPartY = firstPart.y;
-    lastPart.x = firstPartX;
-    lastPart.y = firstPartY + 10;
-    snake.parts.unshift(snake.parts.pop());
-
-  } else if (snake.direction === `left`) {
-    const firstPart = snake.parts[0];
-    const lastPart = snake.parts[snake.parts.length - 1];
-    const firstPartX = firstPart.x;
-    const firstPartY = firstPart.y;
-
-    if (lastPart.y !== firstPartY) {
-      lastPart.y = firstPartY;
-    }
-
-    lastPart.x = firstPartX - 10;
-    snake.parts.unshift(snake.parts.pop());
-
-  } else if (snake.direction === `up`) {
-    const firstPart = snake.parts[0];
-    const lastPart = snake.parts[snake.parts.length - 1];
-    const firstPartX = firstPart.x;
-    const firstPartY = firstPart.y;
-    lastPart.x = firstPartX;
-    lastPart.y = firstPartY - 10;
-    snake.parts.unshift(snake.parts.pop());
-  }
+  checkSnakeMove(snake.direction);
 
 
   // apple generate
@@ -147,7 +185,7 @@ const nextStep = () => {
   }
   setTimeout(() => {
     nextStep();
-  }, 100);
+  }, 1000);
 };
 
 const checkKey = (key) => {
