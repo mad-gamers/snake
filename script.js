@@ -1,4 +1,6 @@
-// TODO на маленькой скорости видно, что сначала я тыкаю вниз, змейка идёт ещё раз в сторону, а только потом вниз
+// TODO запретить поворот через себя, касания корпуса
+// TODO поставить стены
+// TODO разобраться с добавлением хвоста
 
 const canvas = document.querySelector(`canvas`);
 const ctx = canvas.getContext(`2d`);
@@ -20,10 +22,34 @@ const snake = {
   direction: `right`,
   parts: [
     {
-      x: 30,
+      x: 70,
       y: 10,
       size: 10,
       color: `red`
+    },
+    {
+      x: 60,
+      y: 10,
+      size: 10,
+      color: `black`
+    },
+    {
+      x: 50,
+      y: 10,
+      size: 10,
+      color: `black`
+    },
+    {
+      x: 40,
+      y: 10,
+      size: 10,
+      color: `black`
+    },
+    {
+      x: 30,
+      y: 10,
+      size: 10,
+      color: `black`
     },
     {
       x: 20,
@@ -85,6 +111,23 @@ const addNewSnakePart = () => {
   snake.parts.push(newPart);
 };
 
+const checkBumpIntoTail = (direction) => {
+  debugger;
+  const parts = snake.parts;
+  const firstPart = parts[0];
+  let isTailNear = false;
+  if (direction === `left`) {
+    // TODO не проводить полный цикл, до первого найденного
+    for (const part of parts) {
+      if (part.x === firstPart.x - 10) {
+        isTailNear = true;
+      }
+    }
+  }
+
+  return isTailNear;
+};
+
 const moveRight = (firstPart, lastPart, firstPartX, firstPartY) => {
 
   if (lastPart.y !== firstPartY) {
@@ -123,6 +166,9 @@ const moveLeft = (firstPart, lastPart, firstPartX, firstPartY) => {
     lastPart.color = `red`;
     firstPart.color = `black`;
     snake.parts.unshift(snake.parts.pop());
+    if (checkBumpIntoTail(`left`)) {
+      console.log(`Врезался`);
+    }
   } else {
     moveRight(firstPart, lastPart, firstPartX, firstPartY);
   }
@@ -185,7 +231,7 @@ const nextStep = () => {
   }
   setTimeout(() => {
     nextStep();
-  }, 1000);
+  }, 200);
 };
 
 const checkKey = (key) => {
