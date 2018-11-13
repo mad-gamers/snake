@@ -19,13 +19,25 @@ const gameCanvas = {
 
 const snake = {
   color: `black`,
-  direction: `right`,
+  direction: `down`,
   parts: [
+    {
+      x: 90,
+      y: 10,
+      size: 10,
+      color: `red`
+    },
+    {
+      x: 80,
+      y: 10,
+      size: 10,
+      color: `black`
+    },
     {
       x: 70,
       y: 10,
       size: 10,
-      color: `red`
+      color: `black`
     },
     {
       x: 60,
@@ -112,14 +124,34 @@ const addNewSnakePart = () => {
 };
 
 const checkBumpIntoTail = (direction) => {
-  debugger;
   const parts = snake.parts;
   const firstPart = parts[0];
   let isTailNear = false;
   if (direction === `left`) {
     // TODO не проводить полный цикл, до первого найденного
+    // TODO мэйби есть смысл перебирать с конца, потому что мы врезаемся в хвост
+    // TODO если я нажимаю лево из право тоже считает ошибкой
+    // isTailNear = parts.some((el) => el.x === firstPart.x - 10);
     for (const part of parts) {
-      if (part.x === firstPart.x - 10) {
+      if (part.x === firstPart.x - 10 && part.y === firstPart.y) {
+        isTailNear = true;
+      }
+    }
+  } else if (direction === `right`) {
+    for (const part of parts) {
+      if (part.x === firstPart.x + 10 && part.y === firstPart.y) {
+        isTailNear = true;
+      }
+    }
+  } else if (direction === `down`) {
+    for (const part of parts) {
+      if (part.y === firstPart.y + 10 && part.x === firstPart.x) {
+        isTailNear = true;
+      }
+    }
+  } else if (direction === `up`) {
+    for (const part of parts) {
+      if (part.y === firstPart.y - 10 && part.x === firstPart.x) {
         isTailNear = true;
       }
     }
@@ -166,9 +198,6 @@ const moveLeft = (firstPart, lastPart, firstPartX, firstPartY) => {
     lastPart.color = `red`;
     firstPart.color = `black`;
     snake.parts.unshift(snake.parts.pop());
-    if (checkBumpIntoTail(`left`)) {
-      console.log(`Врезался`);
-    }
   } else {
     moveRight(firstPart, lastPart, firstPartX, firstPartY);
   }
@@ -220,6 +249,9 @@ const nextStep = () => {
   ctx.fillStyle = apple.color;
   ctx.fillRect(apple.x, apple.y, apple.width, apple.height);
 
+  if (checkBumpIntoTail(snake.direction)) {
+    console.log(`Врезался`);
+  }
   // snake movenment
   checkSnakeMove(snake.direction);
 
@@ -231,7 +263,7 @@ const nextStep = () => {
   }
   setTimeout(() => {
     nextStep();
-  }, 200);
+  }, 1000);
 };
 
 const checkKey = (key) => {
