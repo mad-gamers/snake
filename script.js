@@ -152,7 +152,7 @@ const checkBumpIntoTail = (direction) => {
   if (direction === `left`) {
     // TODO не проводить полный цикл, до первого найденного
     // TODO мэйби есть смысл перебирать с конца, потому что мы врезаемся в хвост
-    // TODO если я нажимаю лево из право тоже считает ошибкой
+    // TODO если я нажимаю лево из право тоже считает ошибкой. Почему?
     // isTailNear = parts.some((el) => el.x === firstPart.x - 20);
     for (const part of parts) {
       if (part.x === firstPart.x - 20 && part.y === firstPart.y) {
@@ -295,6 +295,7 @@ const nextStep = () => {
 
   if (checkBumpIntoTail(snake.direction)) {
     console.log(`Врезался`);
+    overGame();
   }
   if (checkBumpIntoWall(snake.direction)) {
     console.log(`Врезался`);
