@@ -9,6 +9,8 @@ const getRandomRange = (min, max) => {
   return min + Math.floor(Math.random() * (max - min + 1));
 };
 
+let timer = null;
+
 const game = {
   points: 0,
   lives: 1,
@@ -19,9 +21,13 @@ const gameCanvas = {
   color: `green`,
   x: 0,
   y: 0,
-  width: 800,
-  height: 800,
-  point: 20
+  width: 840,
+  height: 840,
+  point: 20,
+  borderWidth: 20,
+  borderColor: `blue`,
+  fieldWidth: 800,
+  fieldHeight: 800,
 };
 
 const snake = {
@@ -128,6 +134,15 @@ const addNewSnakePart = () => {
   }
 
   snake.parts.push(newPart);
+};
+
+const overGame = () => {
+  game.lives -= 1;
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+    console.log('Конец игры');
+  }
 };
 
 const checkBumpIntoTail = (direction) => {
@@ -261,6 +276,11 @@ const nextStep = () => {
   ctx.fillStyle = gameCanvas.color;
   ctx.fillRect(gameCanvas.x, gameCanvas.y, gameCanvas.width, gameCanvas.height);
 
+  // render border
+  ctx.strokeStyle = gameCanvas.borderColor;
+  ctx.lineWidth = 20;
+  ctx.strokeRect(10, 10, gameCanvas.width, gameCanvas.height);
+
   renderSnake(snake);
 
   // render apple
@@ -272,7 +292,10 @@ const nextStep = () => {
   }
   if (checkBumpIntoWall(snake.direction)) {
     console.log(`Врезался`);
+    overGame();
   }
+
+
   // snake movenment
   checkSnakeMove(snake.direction);
 
@@ -282,9 +305,11 @@ const nextStep = () => {
     addNewSnakePart();
     generateApple();
   }
-  setTimeout(() => {
-    nextStep();
-  }, 200);
+};
+
+
+const startGame = () => {
+  timer = setInterval(nextStep, 200);
 };
 
 const checkKey = (key) => {
@@ -308,4 +333,4 @@ document.addEventListener(`keydown`, (evt) => {
   checkKey(evt.key);
 });
 
-nextStep();
+startGame();
