@@ -188,6 +188,12 @@ const checkBumpIntoWall = (direction) => {
   let isWallNear = false;
   if (direction === `right` && firstPart.x + 20 === gameCanvas.width) {
     isWallNear = true;
+  } else if (direction === `left` && firstPart.x - 20 === 0) {
+    isWallNear = true;
+  } else if (direction === `up` && firstPart.y - 20 === 0) {
+    isWallNear = true;
+  } else if (direction === `down` && firstPart.y + 20 === gameCanvas.height) {
+    isWallNear = true;
   }
 
   return isWallNear;
