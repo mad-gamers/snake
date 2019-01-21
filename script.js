@@ -9,6 +9,12 @@ const getRandomRange = (min, max) => {
   return min + Math.floor(Math.random() * (max - min + 1));
 };
 
+const game = {
+  points: 0,
+  lives: 1,
+  time: 0
+};
+
 const gameCanvas = {
   color: `green`,
   x: 0,
