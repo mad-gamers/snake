@@ -13,66 +13,67 @@ const gameCanvas = {
   color: `green`,
   x: 0,
   y: 0,
-  width: 300,
-  height: 300
+  width: 800,
+  height: 800,
+  point: 20
 };
 
 const snake = {
   color: `black`,
-  direction: `down`,
+  direction: `right`,
   parts: [
     {
-      x: 90,
-      y: 10,
-      size: 10,
+      x: 200,
+      y: 20,
+      size: 20,
       color: `red`
     },
     {
-      x: 80,
-      y: 10,
-      size: 10,
+      x: 180,
+      y: 20,
+      size: 20,
       color: `black`
     },
     {
-      x: 70,
-      y: 10,
-      size: 10,
+      x: 160,
+      y: 20,
+      size: 20,
+      color: `black`
+    },
+    {
+      x: 140,
+      y: 20,
+      size: 20,
+      color: `black`
+    },
+    {
+      x: 120,
+      y: 20,
+      size: 20,
+      color: `black`
+    },
+    {
+      x: 100,
+      y: 20,
+      size: 20,
+      color: `black`
+    },
+    {
+      x: 80,
+      y: 20,
+      size: 20,
       color: `black`
     },
     {
       x: 60,
-      y: 10,
-      size: 10,
-      color: `black`
-    },
-    {
-      x: 50,
-      y: 10,
-      size: 10,
+      y: 20,
+      size: 20,
       color: `black`
     },
     {
       x: 40,
-      y: 10,
-      size: 10,
-      color: `black`
-    },
-    {
-      x: 30,
-      y: 10,
-      size: 10,
-      color: `black`
-    },
-    {
-      x: 20,
-      y: 10,
-      size: 10,
-      color: `black`
-    },
-    {
-      x: 10,
-      y: 10,
-      size: 10,
+      y: 20,
+      size: 20,
       color: `black`
     }
   ]
@@ -80,10 +81,10 @@ const snake = {
 
 const apple = {
   color: `orange`,
-  width: 10,
-  height: 10,
-  x: getRandomRange(0, 29) * 10,
-  y: getRandomRange(0, 29) * 10
+  width: 20,
+  height: 20,
+  x: getRandomRange(0, 39) * 20,
+  y: getRandomRange(0, 39) * 20
 };
 
 const renderSnake = () => {
@@ -111,13 +112,13 @@ const addNewSnakePart = () => {
   const newPart = Object.assign({}, lastPart);
 
   if (snake.direction === `right`) {
-    newPart.x = lastPart.x - 10;
+    newPart.x = lastPart.x - 20;
   } else if (snake.direction === `left`) {
-    newPart.x = lastPart.x + 10;
+    newPart.x = lastPart.x + 20;
   } else if (snake.direction === `up`) {
-    newPart.y = lastPart.y + 10;
+    newPart.y = lastPart.y + 20;
   } else if (snake.direction === `down`) {
-    newPart.y = lastPart.y - 10;
+    newPart.y = lastPart.y - 20;
   }
 
   snake.parts.push(newPart);
@@ -131,27 +132,27 @@ const checkBumpIntoTail = (direction) => {
     // TODO не проводить полный цикл, до первого найденного
     // TODO мэйби есть смысл перебирать с конца, потому что мы врезаемся в хвост
     // TODO если я нажимаю лево из право тоже считает ошибкой
-    // isTailNear = parts.some((el) => el.x === firstPart.x - 10);
+    // isTailNear = parts.some((el) => el.x === firstPart.x - 20);
     for (const part of parts) {
-      if (part.x === firstPart.x - 10 && part.y === firstPart.y) {
+      if (part.x === firstPart.x - 20 && part.y === firstPart.y) {
         isTailNear = true;
       }
     }
   } else if (direction === `right`) {
     for (const part of parts) {
-      if (part.x === firstPart.x + 10 && part.y === firstPart.y) {
+      if (part.x === firstPart.x + 20 && part.y === firstPart.y) {
         isTailNear = true;
       }
     }
   } else if (direction === `down`) {
     for (const part of parts) {
-      if (part.y === firstPart.y + 10 && part.x === firstPart.x) {
+      if (part.y === firstPart.y + 20 && part.x === firstPart.x) {
         isTailNear = true;
       }
     }
   } else if (direction === `up`) {
     for (const part of parts) {
-      if (part.y === firstPart.y - 10 && part.x === firstPart.x) {
+      if (part.y === firstPart.y - 20 && part.x === firstPart.x) {
         isTailNear = true;
       }
     }
@@ -160,14 +161,25 @@ const checkBumpIntoTail = (direction) => {
   return isTailNear;
 };
 
+const checkBumpIntoWall = (direction) => {
+  const parts = snake.parts;
+  const firstPart = parts[0];
+  let isWallNear = false;
+  if (direction === `right` && firstPart.x + 20 === gameCanvas.width) {
+    isWallNear = true;
+  }
+
+  return isWallNear;
+};
+
 const moveRight = (firstPart, lastPart, firstPartX, firstPartY) => {
 
   if (lastPart.y !== firstPartY) {
     lastPart.y = firstPartY;
   }
 
-  if (firstPartX + 10 !== snake.parts[1].x) {
-    lastPart.x = firstPartX + 10;
+  if (firstPartX + 20 !== snake.parts[1].x) {
+    lastPart.x = firstPartX + 20;
     lastPart.color = `red`;
     firstPart.color = `black`;
     snake.parts.unshift(snake.parts.pop());
@@ -177,9 +189,9 @@ const moveRight = (firstPart, lastPart, firstPartX, firstPartY) => {
 };
 
 const moveDown = (firstPart, lastPart, firstPartX, firstPartY) => {
-  if (firstPartY + 10 !== snake.parts[1].y) {
+  if (firstPartY + 20 !== snake.parts[1].y) {
     lastPart.x = firstPartX;
-    lastPart.y = firstPartY + 10;
+    lastPart.y = firstPartY + 20;
     lastPart.color = `red`;
     firstPart.color = `black`;
     snake.parts.unshift(snake.parts.pop());
@@ -193,8 +205,8 @@ const moveLeft = (firstPart, lastPart, firstPartX, firstPartY) => {
     lastPart.y = firstPartY;
   }
 
-  if (firstPartX - 10 !== snake.parts[1].x) {
-    lastPart.x = firstPartX - 10;
+  if (firstPartX - 20 !== snake.parts[1].x) {
+    lastPart.x = firstPartX - 20;
     lastPart.color = `red`;
     firstPart.color = `black`;
     snake.parts.unshift(snake.parts.pop());
@@ -204,9 +216,9 @@ const moveLeft = (firstPart, lastPart, firstPartX, firstPartY) => {
 };
 
 const moveUp = (firstPart, lastPart, firstPartX, firstPartY) => {
-  if (firstPartY - 10 !== snake.parts[1].y) {
+  if (firstPartY - 20 !== snake.parts[1].y) {
     lastPart.x = firstPartX;
-    lastPart.y = firstPartY - 10;
+    lastPart.y = firstPartY - 20;
     lastPart.color = `red`;
     firstPart.color = `black`;
     snake.parts.unshift(snake.parts.pop());
@@ -252,6 +264,9 @@ const nextStep = () => {
   if (checkBumpIntoTail(snake.direction)) {
     console.log(`Врезался`);
   }
+  if (checkBumpIntoWall(snake.direction)) {
+    console.log(`Врезался`);
+  }
   // snake movenment
   checkSnakeMove(snake.direction);
 
@@ -263,7 +278,7 @@ const nextStep = () => {
   }
   setTimeout(() => {
     nextStep();
-  }, 1000);
+  }, 200);
 };
 
 const checkKey = (key) => {
@@ -279,8 +294,8 @@ const checkKey = (key) => {
 };
 
 const generateApple = () => {
-  apple.x = getRandomRange(0, 29) * 10;
-  apple.y = getRandomRange(0, 29) * 10;
+  apple.x = getRandomRange(0, 39) * 20;
+  apple.y = getRandomRange(0, 39) * 20;
 };
 
 document.addEventListener(`keydown`, (evt) => {
