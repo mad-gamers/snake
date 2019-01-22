@@ -5,20 +5,19 @@
 // TODO сделать красиво
 // TODO добавить глаза
 // TODO как сделать с setTimeout
+// TODO из-за сайд-ээфекта на запрет смены направления на противоположное не даёт со старта поехать назад
 
 const canvas = document.querySelector(`canvas`);
 const ctx = canvas.getContext(`2d`);
+let timer = null;
 
 const getRandomRange = (min, max) => {
   return min + Math.floor(Math.random() * (max - min + 1));
 };
 
-let timer = null;
-
 const game = {
   points: 0,
-  lives: 1,
-  time: 0
+  lives: 1
 };
 
 const gameCanvas = {
@@ -27,11 +26,12 @@ const gameCanvas = {
   y: 0,
   width: 840,
   height: 840,
-  point: 20,
-  borderWidth: 20,
-  borderColor: `blue`,
-  fieldWidth: 800,
-  fieldHeight: 800,
+  step: 20,
+};
+
+const border = {
+  size: gameCanvas.step,
+  color: `blue`
 };
 
 const snake = {
@@ -41,55 +41,46 @@ const snake = {
     {
       x: 200,
       y: 20,
-      size: 20,
       color: `red`
     },
     {
       x: 180,
       y: 20,
-      size: 20,
       color: `black`
     },
     {
       x: 160,
       y: 20,
-      size: 20,
       color: `black`
     },
     {
       x: 140,
       y: 20,
-      size: 20,
       color: `black`
     },
     {
       x: 120,
       y: 20,
-      size: 20,
       color: `black`
     },
     {
       x: 100,
       y: 20,
-      size: 20,
       color: `black`
     },
     {
       x: 80,
       y: 20,
-      size: 20,
       color: `black`
     },
     {
       x: 60,
       y: 20,
-      size: 20,
       color: `black`
     },
     {
       x: 40,
       y: 20,
-      size: 20,
       color: `black`
     }
   ]
@@ -97,10 +88,29 @@ const snake = {
 
 const apple = {
   color: `orange`,
-  width: 20,
-  height: 20,
-  x: getRandomRange(1, 39) * 20,
-  y: getRandomRange(1, 39) * 20
+  width: gameCanvas.step,
+  height: gameCanvas.step,
+  x: getRandomRange(1, gameCanvas.width / gameCanvas.step - 1) * gameCanvas.step,
+  y: getRandomRange(1, gameCanvas.height / gameCanvas.step - 1) * gameCanvas.step
+};
+
+const startGame = () => {
+  timer = setInterval(nextStep, 200);
+};
+
+const overGame = () => {
+  game.lives -= 1;
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+    snake.direction = null;
+    console.log(`Конец игры`);
+  }
+};
+
+const render = (item) => {
+  ctx.fillStyle = item.color;
+  ctx.fillRect(item.x, item.y, item.width, item.height);
 };
 
 const renderSnake = () => {
@@ -108,12 +118,17 @@ const renderSnake = () => {
 
   for (const part of snake.parts) {
     ctx.fillStyle = part.color;
-    ctx.fillRect(part.x, part.y, part.size, part.size);
+    ctx.fillRect(part.x, part.y, gameCanvas.step, gameCanvas.step);
   }
 };
 
 const clear = (item) => {
   ctx.clearRect(item.x, item.y, item.width, item.height);
+};
+
+const generateApple = () => {
+  apple.x = getRandomRange(1, gameCanvas.width / gameCanvas.step - 1) * gameCanvas.step;
+  apple.y = getRandomRange(1, gameCanvas.height / gameCanvas.step - 1) * gameCanvas.step;
 };
 
 const isAppleEaten = () => {
@@ -128,26 +143,16 @@ const addNewSnakePart = () => {
   const newPart = Object.assign({}, lastPart);
 
   if (snake.direction === `right`) {
-    newPart.x = lastPart.x - 20;
+    newPart.x = lastPart.x - gameCanvas.step;
   } else if (snake.direction === `left`) {
-    newPart.x = lastPart.x + 20;
+    newPart.x = lastPart.x + gameCanvas.step;
   } else if (snake.direction === `up`) {
-    newPart.y = lastPart.y + 20;
+    newPart.y = lastPart.y + gameCanvas.step;
   } else if (snake.direction === `down`) {
-    newPart.y = lastPart.y - 20;
+    newPart.y = lastPart.y - gameCanvas.step;
   }
 
   snake.parts.push(newPart);
-};
-
-const overGame = () => {
-  game.lives -= 1;
-  if (timer) {
-    clearInterval(timer);
-    timer = null;
-    snake.direction = null;
-    console.log(`Конец игры`);
-  }
 };
 
 // TODO не проводить полный цикл, до первого найденного
@@ -158,15 +163,15 @@ const checkBumpIntoTail = (direction) => {
   const parts = snake.parts;
   const firstPart = parts[0];
   let isTailNear = false;
-  
+
   if (direction === `left`) {
-    isTailNear = parts.some((part) => part.x === firstPart.x - 20 && part.y === firstPart.y);
+    isTailNear = parts.some((part) => part.x === firstPart.x - gameCanvas.step && part.y === firstPart.y);
   } else if (direction === `right`) {
-    isTailNear = parts.some((part) => part.x === firstPart.x + 20 && part.y === firstPart.y);
+    isTailNear = parts.some((part) => part.x === firstPart.x + gameCanvas.step && part.y === firstPart.y);
   } else if (direction === `down`) {
-    isTailNear = parts.some((part) => part.y === firstPart.y + 20 && part.x === firstPart.x);
+    isTailNear = parts.some((part) => part.y === firstPart.y + gameCanvas.step && part.x === firstPart.x);
   } else if (direction === `up`) {
-    isTailNear = parts.some((part) => part.y === firstPart.y - 20 && part.x === firstPart.x);
+    isTailNear = parts.some((part) => part.y === firstPart.y - gameCanvas.step && part.x === firstPart.x);
   }
 
   return isTailNear;
@@ -176,14 +181,14 @@ const checkBumpIntoWall = (direction) => {
   const parts = snake.parts;
   const firstPart = parts[0];
   let isWallNear = false;
-  if (direction === `right` && firstPart.x + 20 === gameCanvas.width) {
-    isWallNear = true;
-  } else if (direction === `left` && firstPart.x - 20 === 0) {
-    isWallNear = true;
-  } else if (direction === `up` && firstPart.y - 20 === 0) {
-    isWallNear = true;
-  } else if (direction === `down` && firstPart.y + 20 === gameCanvas.height) {
-    isWallNear = true;
+  if (direction === `right`) {
+    isWallNear = firstPart.x + gameCanvas.step === gameCanvas.width;
+  } else if (direction === `left`) {
+    isWallNear = firstPart.x - gameCanvas.step === 0;
+  } else if (direction === `up`) {
+    isWallNear = firstPart.y - gameCanvas.step === 0;
+  } else if (direction === `down`) {
+    isWallNear = firstPart.y + gameCanvas.step === gameCanvas.height;
   }
 
   return isWallNear;
@@ -195,25 +200,21 @@ const moveRight = (firstPart, lastPart, firstPartX, firstPartY) => {
     lastPart.y = firstPartY;
   }
 
-  if (firstPartX + 20 !== snake.parts[1].x) {
-    lastPart.x = firstPartX + 20;
+  if (firstPartX + gameCanvas.step !== snake.parts[1].x) {
+    lastPart.x = firstPartX + gameCanvas.step;
     lastPart.color = `red`;
     firstPart.color = `black`;
     snake.parts.unshift(snake.parts.pop());
-  } else {
-    moveLeft(firstPart, lastPart, firstPartX, firstPartY);
   }
 };
 
 const moveDown = (firstPart, lastPart, firstPartX, firstPartY) => {
-  if (firstPartY + 20 !== snake.parts[1].y) {
+  if (firstPartY + gameCanvas.step !== snake.parts[1].y) {
     lastPart.x = firstPartX;
-    lastPart.y = firstPartY + 20;
+    lastPart.y = firstPartY + gameCanvas.step;
     lastPart.color = `red`;
     firstPart.color = `black`;
     snake.parts.unshift(snake.parts.pop());
-  } else {
-    moveUp(firstPart, lastPart, firstPartX, firstPartY);
   }
 };
 
@@ -222,25 +223,21 @@ const moveLeft = (firstPart, lastPart, firstPartX, firstPartY) => {
     lastPart.y = firstPartY;
   }
 
-  if (firstPartX - 20 !== snake.parts[1].x) {
-    lastPart.x = firstPartX - 20;
+  if (firstPartX - gameCanvas.step !== snake.parts[1].x) {
+    lastPart.x = firstPartX - gameCanvas.step;
     lastPart.color = `red`;
     firstPart.color = `black`;
     snake.parts.unshift(snake.parts.pop());
-  } else {
-    moveRight(firstPart, lastPart, firstPartX, firstPartY);
   }
 };
 
 const moveUp = (firstPart, lastPart, firstPartX, firstPartY) => {
-  if (firstPartY - 20 !== snake.parts[1].y) {
+  if (firstPartY - gameCanvas.step !== snake.parts[1].y) {
     lastPart.x = firstPartX;
-    lastPart.y = firstPartY - 20;
+    lastPart.y = firstPartY - gameCanvas.step;
     lastPart.color = `red`;
     firstPart.color = `black`;
     snake.parts.unshift(snake.parts.pop());
-  } else {
-    moveDown(firstPart, lastPart, firstPartX, firstPartY);
   }
 };
 
@@ -268,20 +265,15 @@ const checkSnakeMove = (direction) => {
 const nextStep = () => {
   clear(gameCanvas);
 
-  // render canvas
-  ctx.fillStyle = gameCanvas.color;
-  ctx.fillRect(gameCanvas.x, gameCanvas.y, gameCanvas.width, gameCanvas.height);
+  render(gameCanvas);
 
   // render border
-  ctx.strokeStyle = gameCanvas.borderColor;
-  ctx.lineWidth = 20;
-  ctx.strokeRect(10, 10, gameCanvas.width, gameCanvas.height);
+  ctx.strokeStyle = border.color;
+  ctx.lineWidth = border.size;
+  ctx.strokeRect(gameCanvas.x + border.size / 2, gameCanvas.x + border.size / 2, gameCanvas.width, gameCanvas.height);
 
   renderSnake(snake);
-
-  // render apple
-  ctx.fillStyle = apple.color;
-  ctx.fillRect(apple.x, apple.y, apple.width, apple.height);
+  render(apple);
 
   if (checkBumpIntoTail(snake.direction) || checkBumpIntoWall(snake.direction)) {
     console.log(`Врезался`);
@@ -300,11 +292,6 @@ const nextStep = () => {
   }
 };
 
-
-const startGame = () => {
-  timer = setInterval(nextStep, 200);
-};
-
 const checkKey = (key) => {
   if (key === `ArrowRight`) {
     snake.direction = `right`;
@@ -315,11 +302,6 @@ const checkKey = (key) => {
   } else if (key === `ArrowLeft`) {
     snake.direction = `left`;
   }
-};
-
-const generateApple = () => {
-  apple.x = getRandomRange(0, 39) * 20;
-  apple.y = getRandomRange(0, 39) * 20;
 };
 
 document.addEventListener(`keydown`, (evt) => {
