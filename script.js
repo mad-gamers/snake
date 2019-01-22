@@ -4,6 +4,7 @@
 // TODO добавить подсчёт очков или не добавлять
 // TODO сделать красиво
 // TODO добавить глаза
+// TODO как сделать с setTimeout
 
 const canvas = document.querySelector(`canvas`);
 const ctx = canvas.getContext(`2d`);
@@ -35,7 +36,7 @@ const gameCanvas = {
 
 const snake = {
   color: `black`,
-  direction: `right`,
+  direction: null,
   parts: [
     {
       x: 200,
@@ -144,42 +145,28 @@ const overGame = () => {
   if (timer) {
     clearInterval(timer);
     timer = null;
+    snake.direction = null;
     console.log(`Конец игры`);
   }
 };
+
+// TODO не проводить полный цикл, до первого найденного
+// TODO мэйби есть смысл перебирать с конца, потому что мы врезаемся в хвост
+// TODO если я нажимаю лево из право тоже считает ошибкой. Почему?
 
 const checkBumpIntoTail = (direction) => {
   const parts = snake.parts;
   const firstPart = parts[0];
   let isTailNear = false;
+  
   if (direction === `left`) {
-    // TODO не проводить полный цикл, до первого найденного
-    // TODO мэйби есть смысл перебирать с конца, потому что мы врезаемся в хвост
-    // TODO если я нажимаю лево из право тоже считает ошибкой. Почему?
-    // isTailNear = parts.some((el) => el.x === firstPart.x - 20);
-    for (const part of parts) {
-      if (part.x === firstPart.x - 20 && part.y === firstPart.y) {
-        isTailNear = true;
-      }
-    }
+    isTailNear = parts.some((part) => part.x === firstPart.x - 20 && part.y === firstPart.y);
   } else if (direction === `right`) {
-    for (const part of parts) {
-      if (part.x === firstPart.x + 20 && part.y === firstPart.y) {
-        isTailNear = true;
-      }
-    }
+    isTailNear = parts.some((part) => part.x === firstPart.x + 20 && part.y === firstPart.y);
   } else if (direction === `down`) {
-    for (const part of parts) {
-      if (part.y === firstPart.y + 20 && part.x === firstPart.x) {
-        isTailNear = true;
-      }
-    }
+    isTailNear = parts.some((part) => part.y === firstPart.y + 20 && part.x === firstPart.x);
   } else if (direction === `up`) {
-    for (const part of parts) {
-      if (part.y === firstPart.y - 20 && part.x === firstPart.x) {
-        isTailNear = true;
-      }
-    }
+    isTailNear = parts.some((part) => part.y === firstPart.y - 20 && part.x === firstPart.x);
   }
 
   return isTailNear;
