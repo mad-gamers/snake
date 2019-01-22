@@ -144,7 +144,7 @@ const overGame = () => {
   if (timer) {
     clearInterval(timer);
     timer = null;
-    console.log('Конец игры');
+    console.log(`Конец игры`);
   }
 };
 
@@ -296,11 +296,7 @@ const nextStep = () => {
   ctx.fillStyle = apple.color;
   ctx.fillRect(apple.x, apple.y, apple.width, apple.height);
 
-  if (checkBumpIntoTail(snake.direction)) {
-    console.log(`Врезался`);
-    overGame();
-  }
-  if (checkBumpIntoWall(snake.direction)) {
+  if (checkBumpIntoTail(snake.direction) || checkBumpIntoWall(snake.direction)) {
     console.log(`Врезался`);
     overGame();
   }
