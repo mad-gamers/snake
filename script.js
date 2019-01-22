@@ -1,6 +1,9 @@
-// TODO запретить поворот через себя, касания корпуса
-// TODO поставить стены
 // TODO разобраться с добавлением хвоста
+// TODO разобраться с размерами рамки и канваса
+// TODO причесать код
+// TODO добавить подсчёт очков или не добавлять
+// TODO сделать красиво
+// TODO добавить глаза
 
 const canvas = document.querySelector(`canvas`);
 const ctx = canvas.getContext(`2d`);
@@ -95,8 +98,8 @@ const apple = {
   color: `orange`,
   width: 20,
   height: 20,
-  x: getRandomRange(0, 39) * 20,
-  y: getRandomRange(0, 39) * 20
+  x: getRandomRange(1, 39) * 20,
+  y: getRandomRange(1, 39) * 20
 };
 
 const renderSnake = () => {
